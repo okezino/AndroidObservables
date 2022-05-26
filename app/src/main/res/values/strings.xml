@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Observables</string>
+    <string name="livedata">livedata</string>
+    <string name="flow">flow</string>
+    <string name="state_flow">state flow</string>
+    <string name="shared_flow">shared flow</string>
+</resources>
