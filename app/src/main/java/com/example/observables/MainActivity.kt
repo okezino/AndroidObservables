@@ -2,7 +2,9 @@ package com.example.observables
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.observables.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collect
@@ -35,13 +37,14 @@ class MainActivity : AppCompatActivity(), MainActivityView {
 
     override fun onFlowClicked() {
         binding.flowBtn.setOnClickListener {
-        lifecycleScope.launch {
-            mainViewModel.triggerFlow().collectLatest {
-                binding.flow.text  = it
+            lifecycleScope.launch {
+                mainViewModel.triggerFlow().collectLatest {
+                    binding.flow.text = it
+                }
             }
         }
-        }
     }
+
     override fun onStateFlowClicked() {
         binding.stateFlowBtn.setOnClickListener {
             mainViewModel.triggerStateFlow()
@@ -56,7 +59,7 @@ class MainActivity : AppCompatActivity(), MainActivityView {
 
         lifecycleScope.launch {
             mainViewModel.sharedFlow.collectLatest {
-                Snackbar.make(binding.root,it ,Snackbar.LENGTH_LONG).show()
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
 
             }
 
@@ -75,12 +78,27 @@ class MainActivity : AppCompatActivity(), MainActivityView {
         mainViewModel.liveData.observe(this) {
             binding.livedata.text = it
         }
-
+        /**
+         * Old recommendation of collecting data from a StateFlow
+         */
         lifecycleScope.launchWhenCreated {
-           mainViewModel.stateFlow.collectLatest {
-               binding.stateFlow.text = it
-               Snackbar.make(binding.root,it ,Snackbar.LENGTH_LONG).show()
-           }
+            mainViewModel.stateFlow.collectLatest {
+                binding.stateFlow.text = it
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+            }
+        }
+
+        /***
+         * New and google recommended way of collecting data from stateFlow
+         */
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                mainViewModel.stateFlow.collectLatest {
+                    binding.stateFlow.text = it
+                    Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                }
+            }
         }
     }
 
