@@ -7,6 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.observables.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -81,12 +82,12 @@ class MainActivity : AppCompatActivity(), MainActivityView {
         /**
          * Old recommendation of collecting data from a StateFlow
          */
-        lifecycleScope.launchWhenCreated {
-            mainViewModel.stateFlow.collectLatest {
-                binding.stateFlow.text = it
-                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
-            }
-        }
+//        lifecycleScope.launchWhenCreated {
+//            mainViewModel.stateFlow.collectLatest {
+//                binding.stateFlow.text = it
+//                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+//            }
+//        }
 
         /***
          * New and google recommended way of collecting data from stateFlow
@@ -103,4 +104,29 @@ class MainActivity : AppCompatActivity(), MainActivityView {
     }
 
 
+    /**
+     * This is a Generic function created
+     */
+    fun <T> collectLatestFlowData(flow: Flow<T>, collect: suspend (T) -> Unit) {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                flow.collectLatest(collect)
+
+            }
+        }
+    }
+
+    /**
+     * This is a Generic function created
+     */
+    fun <T> collectFlowData(flow: Flow<T>, collect: suspend (T) -> Unit) {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                flow.collect(collect)
+
+            }
+        }
+
+
+    }
 }
